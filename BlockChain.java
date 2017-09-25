@@ -3,8 +3,8 @@ import java.security.NoSuchAlgorithmException;
 public class BlockChain {
 
     private class Node {
-        private Block value;
-        private Node next;
+        public Block value;
+        public Node next;
 
         public Node(Block value, Node next) {
             this.value = value;
@@ -22,8 +22,7 @@ public class BlockChain {
         this.sz = 0;
         this.anna = initial;
         this.bob = 0;
-        this.first.value = new Block(sz++, initial, null);
-        this.first.next = null;
+        this.first = new Node(new Block(sz++, initial, null), null);
         this.last = this.first;
     }
 
@@ -40,9 +39,9 @@ public class BlockChain {
             Node n = new Node(blk, null);
             last.next = n;
             last = n;
+            sz++;
             anna += blk.getAmount();
             bob -= blk.getAmount();
-            sz++;
         } else {
             throw new IllegalArgumentException();
         }
@@ -52,12 +51,17 @@ public class BlockChain {
         if (sz == 0) {
             return false;
         } else {
+            Block lastBlk = last.value;
+            anna -= lastBlk.getAmount();
+            bob += lastBlk.getAmount();
+            
             Node cur = first;
-            while (cur.next != null) {
+            while (cur.next.next != null) {
                 cur = cur.next;
             }
+            cur.next = null;
+            last = cur;
             sz--;
-            cur.next = cur.next.next;
             return true;
         }
     }
@@ -81,10 +85,10 @@ public class BlockChain {
     public String toString() {
         Node cur = first;
         StringBuilder builder = new StringBuilder();
-        builder.append("\n");
         while (cur != null) {
-            builder.append(cur.value.toString());
             builder.append("\n");
+            builder.append(cur.value.toString());
+            cur = cur.next;
         }
         return builder.toString();
     }
