@@ -40,9 +40,9 @@ public class Block {
     public void calculateHash() throws NoSuchAlgorithmException {
         MessageDigest md = MessageDigest.getInstance("sha-256");
 
-        ByteBuffer numByteBuffer = ByteBuffer.allocate(4).putInt(num);
-        ByteBuffer amountByteBuffer = ByteBuffer.allocate(4).putInt(amount);
-        ByteBuffer nonceByteBuffer = ByteBuffer.allocate(8).putLong(nonce);
+        byte[] numByteBuffer = ByteBuffer.allocate(4).putInt(num).array();
+        byte[] amountByteBuffer = ByteBuffer.allocate(4).putInt(amount).array();
+        byte[] nonceByteBuffer = ByteBuffer.allocate(8).putLong(nonce).array();
 
         md.update(numByteBuffer);
         md.update(amountByteBuffer);
