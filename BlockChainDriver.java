@@ -2,8 +2,13 @@ import java.security.NoSuchAlgorithmException;
 import java.util.Scanner;
 
 public class BlockChainDriver {
-    public static BlockChain blkChain;
+    private static BlockChain blkChain;
 
+    /**
+     * 
+     * @param text
+     * @return
+     */
     private static String prompt(String text) {
         System.out.print(text);
         @SuppressWarnings("resource")
@@ -11,7 +16,13 @@ public class BlockChainDriver {
         return sc.nextLine();
     }
 
-    public static void command(String cmd) throws NoSuchAlgorithmException {
+    /**
+     * 
+     * @param cmd
+     *            input command from user
+     * @throws NoSuchAlgorithmException
+     */
+    private static void command(String cmd) throws NoSuchAlgorithmException {
         if (cmd.equals("help")) {
             System.out.println("Valid commands:");
             System.out.println("\tmine: discovers the nonce for a given transaction");
