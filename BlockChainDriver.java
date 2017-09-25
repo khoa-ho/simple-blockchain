@@ -5,9 +5,11 @@ public class BlockChainDriver {
     private static BlockChain blkChain;
 
     /**
+     * Prompts users for input and receive input as a string
      * 
      * @param text
-     * @return
+     *            the prompt
+     * @return the user input
      */
     private static String prompt(String text) {
         System.out.print(text);
@@ -17,6 +19,7 @@ public class BlockChainDriver {
     }
 
     /**
+     * Executes commands
      * 
      * @param cmd
      *            input command from user
