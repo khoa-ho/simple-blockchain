@@ -1,7 +1,7 @@
 import java.util.Arrays;
 
 public class Hash {
-    private byte[] data;
+    public byte[] data;
 
     public Hash(byte[] data) {
         this.data = data;
