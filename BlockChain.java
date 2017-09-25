@@ -22,14 +22,13 @@ public class BlockChain {
         this.sz = 0;
         this.anna = initial;
         this.bob = 0;
-        this.first.value = new Block(sz, initial, null);
+        this.first.value = new Block(sz++, initial, null);
         this.first.next = null;
         this.last = this.first;
     }
 
     public Block mine(int amount) throws NoSuchAlgorithmException {
-        Block newB = new Block(++sz, amount, last.value.getHash());
-        return newB;
+        return new Block(sz, amount, last.value.getHash());
     }
 
     public int getSize() {
@@ -43,6 +42,7 @@ public class BlockChain {
             last = n;
             anna += blk.getAmount();
             bob -= blk.getAmount();
+            sz++;
         } else {
             throw new IllegalArgumentException();
         }
@@ -81,6 +81,7 @@ public class BlockChain {
     public String toString() {
         Node cur = first;
         StringBuilder builder = new StringBuilder();
+        builder.append("\n");
         while (cur != null) {
             builder.append(cur.value.toString());
             builder.append("\n");
