@@ -1,72 +1,136 @@
+import java.nio.ByteBuffer;
+import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
-import java.util.Scanner;
 
-public class BlockChainDriver {
-    private static BlockChain blkChain;
-
-    /**
-     * Prompts users for input and receive input as a string
-     * 
-     * @param text
-     *            the prompt
-     * @return the user input
-     */
-    private static String prompt(String text) {
-        System.out.print(text);
-        @SuppressWarnings("resource")
-        Scanner sc = new Scanner(System.in);
-        return sc.nextLine();
-    }
+public class Block {
+    private int num;
+    private int amount;
+    private Hash prevHash;
+    private long nonce;
+    private Hash curHash;
 
     /**
-     * Executes commands
+     * Constructs a new block with given parameters
      * 
-     * @param cmd
-     *            input command from user
+     * @param num
+     *            the number of the block in the blockchain
+     * @param amount
+     *            the amount transferred from one account to another (from Anna to
+     *            Bob)
+     * @param prevHash
+     *            the hash from the previous block in the chain
      * @throws NoSuchAlgorithmException
      */
-    private static void command(String cmd) throws NoSuchAlgorithmException {
-        if (cmd.equals("help")) {
-            System.out.println("Valid commands:");
-            System.out.println("\tmine: discovers the nonce for a given transaction");
-            System.out.println("\tappend: appends a new block onto the end of the chain");
-            System.out.println("\tremove: removes the last block from the end of the chain");
-            System.out.println("\tcheck: checks that the block chain is valid");
-            System.out.println("\treport: reports the balances of Alice and Bob");
-            System.out.println("\thelp: prints this list of commands");
-            System.out.println("\tquit: quits the program");
-        } else if (cmd.equals("mine")) {
-            String am = prompt("Amount transferred? ");
-            Block blk = blkChain.mine(Integer.parseInt(am));
-            System.out.println("amount = " + am + ", nounce = " + blk.getNonce());
-        } else if (cmd.equals("append")) {
-            int am = Integer.parseInt(prompt("Amount transferred? "));
-            long non = Long.parseLong(prompt("Nonce? "));
-            Block n = new Block(blkChain.getSize(), am, blkChain.getHash(), non);
-            blkChain.append(n);
-        } else if (cmd.equals("remove")) {
-            blkChain.removeLast();
-        } else if (cmd.equals("check")) {
-            if (blkChain.isValidBlockChain()) {
-                System.out.println("Chain is valid");
-            } else {
-                System.out.println("Chain is invalid");
-            }
-        } else if (cmd.equals("report")) {
-            blkChain.printBalance();
-        } else {
-            System.out.println("Command not found! Type help for the command list.");
+    public Block(int num, int amount, Hash prevHash) throws NoSuchAlgorithmException {
+        this.num = num;
+        this.amount = amount;
+        this.prevHash = prevHash;
+        this.nonce = 0;
+        calculateHash();
+        while (!curHash.isValid()) {
+            nonce++;
+            calculateHash();
         }
     }
 
-    public static void main(String[] args) throws NoSuchAlgorithmException {
-        blkChain = new BlockChain(Integer.parseInt(args[0]));
+    /**
+     * Constructs a new block with given parameters
+     * 
+     * @param num
+     *            the number of the block in the blockchain
+     * @param amount
+     *            the amount transferred from one account to another (from Anna to
+     *            Bob)
+     * @param prevHash
+     *            the hash from the previous block in the chain
+     * @param nonce
+     *            the nonce of the block
+     * @throws NoSuchAlgorithmException
+     */
+    public Block(int num, int amount, Hash prevHash, long nonce) throws NoSuchAlgorithmException {
+        this.num = num;
+        this.amount = amount;
+        this.prevHash = prevHash;
+        this.nonce = nonce;
+        calculateHash();
+    }
 
-        String cmd = prompt("Command? ");
-        while (!cmd.equals("quit")) {
-            command(cmd);
-            System.out.println(blkChain.toString());
-            cmd = prompt("Command? ");
+    /**
+     * Gets the number of the block
+     * 
+     * @return the number of the block
+     */
+    public int getNum() {
+        return num;
+    }
+
+    /**
+     * Gets amount transferred in the block
+     * 
+     * @return the amount transferred in the block
+     */
+    public int getAmount() {
+        return amount;
+    }
+
+    /**
+     * Calculates the hash value for the block
+     * 
+     * @throws NoSuchAlgorithmException
+     */
+    public void calculateHash() throws NoSuchAlgorithmException {
+        MessageDigest md = MessageDigest.getInstance("sha-256");
+
+        byte[] numByteBuffer = ByteBuffer.allocate(4).putInt(num).array();
+        byte[] amountByteBuffer = ByteBuffer.allocate(4).putInt(amount).array();
+        byte[] nonceByteBuffer = ByteBuffer.allocate(8).putLong(nonce).array();
+
+        md.update(numByteBuffer);
+        md.update(amountByteBuffer);
+        if (num != 0) {
+            md.update(prevHash.getData());
         }
+        md.update(nonceByteBuffer);
+
+        curHash = new Hash(md.digest());
+    }
+
+    /**
+     * Gets the nonce in the block
+     * 
+     * @return the nonce of the block
+     */
+    public long getNonce() {
+        return nonce;
+    }
+
+    /**
+     * Gets the previous hash value of the previous block
+     * 
+     * @return the hash of the previous block
+     */
+    public Hash getPrevHash() {
+        return prevHash;
+    }
+
+    /**
+     * Gets the hash from the current block
+     * 
+     * @return the hash of this block
+     */
+    public Hash getHash() {
+        return curHash;
+    }
+
+    /**
+     * Formats block information into a string representation
+     * 
+     * @return a string representation of the block in the specified format
+     */
+    public String toString() {
+        return "Block " + Integer.toString(num) + " (Amount: " + Integer.toString(amount) + ", "
+                + "Nonce: " + Long.toString(nonce) + ", " + "prevHash: "
+                + ((prevHash != null) ? prevHash.toString() : "null") + ", " + "hash: "
+                + curHash.toString() + ")";
     }
 }
