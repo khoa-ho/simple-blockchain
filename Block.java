@@ -21,11 +21,12 @@ public class Block {
         }
     }
 
-    public Block(int num, int amount, Hash prevHash, long nonce) {
+    public Block(int num, int amount, Hash prevHash, long nonce) throws NoSuchAlgorithmException {
         this.num = num;
         this.amount = amount;
         this.prevHash = prevHash;
         this.nonce = nonce;
+        calculateHash();
     }
 
     public int getNum() {
@@ -66,8 +67,9 @@ public class Block {
     }
 
     public String toString() {
-        return "Block" + Integer.toString(num) + "(Amount:" + Integer.toString(amount) + ", " + "Nounce: "
-                + Long.toString(nonce) + ", " + "prevHash: " + prevHash.toString() + ", " + "hash: "
+        return "Block " + Integer.toString(num) + " (Amount: " + Integer.toString(amount) + ", "
+                + "Nonce: " + Long.toString(nonce) + ", " + "prevHash: "
+                + ((prevHash != null) ? prevHash.toString() : "null") + ", " + "hash: "
                 + curHash.toString() + ")";
     }
 }
