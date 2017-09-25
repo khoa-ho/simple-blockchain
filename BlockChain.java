@@ -71,11 +71,7 @@ public class BlockChain {
     }
 
     public boolean isValidBlockChain() {
-        /**
-         * Node cur = first; while (cur != null) { if (!cur.value.getHash().isValid()) {
-         * return false; } cur = cur.next; }
-         */
-        return true;
+         return bob >= 0 && anna >= 0;
     }
 
     public void printBalance() {
