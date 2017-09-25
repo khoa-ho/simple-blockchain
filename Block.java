@@ -1,148 +1,72 @@
 import java.security.NoSuchAlgorithmException;
+import java.util.Scanner;
 
-public class BlockChain {
-
-    private class Node {
-        public Block value;
-        public Node next;
-
-        public Node(Block value, Node next) {
-            this.value = value;
-            this.next = next;
-        }
-    }
-
-    private Node first;
-    private Node last;
-    private int sz;
-    private int anna;
-    private int bob;
+public class BlockChainDriver {
+    private static BlockChain blkChain;
 
     /**
-     * Initializes a blockchain that possess a single block the starts with the
-     * given initial amount
+     * Prompts users for input and receive input as a string
      * 
-     * @param initial
-     *            the initial amount that Alice has
+     * @param text
+     *            the prompt
+     * @return the user input
+     */
+    private static String prompt(String text) {
+        System.out.print(text);
+        @SuppressWarnings("resource")
+        Scanner sc = new Scanner(System.in);
+        return sc.nextLine();
+    }
+
+    /**
+     * Executes commands
+     * 
+     * @param cmd
+     *            input command from user
      * @throws NoSuchAlgorithmException
      */
-    public BlockChain(int initial) throws NoSuchAlgorithmException {
-        this.sz = 0;
-        this.anna = initial;
-        this.bob = 0;
-        this.first = new Node(new Block(sz++, initial, null), null);
-        this.last = this.first;
-    }
-
-    /**
-     * Mines a new candidate block to be added to the list
-     * 
-     * @param amount
-     *            the amount transferred
-     * @return the candidate block
-     * @throws NoSuchAlgorithmException
-     */
-    public Block mine(int amount) throws NoSuchAlgorithmException {
-        return new Block(sz, amount, last.value.getHash());
-    }
-
-    /**
-     * Gets the size of the blockchain
-     * 
-     * @return the size of the blockchain
-     */
-    public int getSize() {
-        return sz;
-    }
-
-    /**
-     * Appends this block to the end of the chain
-     * 
-     * @param blk
-     *            the block to be added
-     * @throws IllegalArgumentException
-     *             if this block cannot be added to the list (because it is invalid
-     *             wrt the rest of the blocks)
-     */
-    public void append(Block blk) {
-        if (blk.getHash().isValid()) {
-            Node n = new Node(blk, null);
-            last.next = n;
-            last = n;
-            sz++;
-            anna += blk.getAmount();
-            bob -= blk.getAmount();
-        } else {
-            System.out.println("The given block has invalid hash!");
-            throw new IllegalArgumentException();
-        }
-    }
-
-    /**
-     * Removes the last block from the chain
-     * 
-     * @return true if a block is removed
-     */
-    public boolean removeLast() {
-        if (sz == 0) {
-            return false;
-        } else {
-            Block lastBlk = last.value;
-            anna -= lastBlk.getAmount();
-            bob += lastBlk.getAmount();
-
-            Node cur = first;
-            while (cur.next.next != null) {
-                cur = cur.next;
+    private static void command(String cmd) throws NoSuchAlgorithmException {
+        if (cmd.equals("help")) {
+            System.out.println("Valid commands:");
+            System.out.println("\tmine: discovers the nonce for a given transaction");
+            System.out.println("\tappend: appends a new block onto the end of the chain");
+            System.out.println("\tremove: removes the last block from the end of the chain");
+            System.out.println("\tcheck: checks that the block chain is valid");
+            System.out.println("\treport: reports the balances of Alice and Bob");
+            System.out.println("\thelp: prints this list of commands");
+            System.out.println("\tquit: quits the program");
+        } else if (cmd.equals("mine")) {
+            String am = prompt("Amount transferred? ");
+            Block blk = blkChain.mine(Integer.parseInt(am));
+            System.out.println("amount = " + am + ", nounce = " + blk.getNonce());
+        } else if (cmd.equals("append")) {
+            int am = Integer.parseInt(prompt("Amount transferred? "));
+            long non = Long.parseLong(prompt("Nonce? "));
+            Block n = new Block(blkChain.getSize(), am, blkChain.getHash(), non);
+            blkChain.append(n);
+        } else if (cmd.equals("remove")) {
+            blkChain.removeLast();
+        } else if (cmd.equals("check")) {
+            if (blkChain.isValidBlockChain()) {
+                System.out.println("Chain is valid");
+            } else {
+                System.out.println("Chain is invalid");
             }
-            cur.next = null;
-            last = cur;
-            sz--;
-            return true;
+        } else if (cmd.equals("report")) {
+            blkChain.printBalance();
+        } else {
+            System.out.println("Command not found! Type help for the command list.");
         }
     }
 
-    /**
-     * Gets the hash of the last block in the chain
-     * 
-     * @return the hash
-     */
-    public Hash getHash() {
-        return last.value.getHash();
-    }
+    public static void main(String[] args) throws NoSuchAlgorithmException {
+        blkChain = new BlockChain(Integer.parseInt(args[0]));
 
-    /**
-     * Walks the blockchain and ensures that its blocks are consistent and valid
-     * 
-     * @return true if the balance of each person at the end of the chain is
-     *         non-negative
-     */
-    public boolean isValidBlockChain() {
-        return bob >= 0 && anna >= 0;
-    }
-
-    /**
-     * Prints the balance of each person at the end of the chain
-     */
-    public void printBalance() {
-        System.out.println(
-                "Alice: " + Integer.toString(anna) + ", " + "Bob: " + Integer.toString(bob));
-    }
-
-    /**
-     * Represents the blockchain as a string representation
-     * 
-     * @return the string representation of each of its blocks, earliest to latest,
-     *         one per line
-     */
-    public String toString() {
-        Node cur = first;
-        StringBuilder builder = new StringBuilder();
-        while (cur != null) {
-            builder.append("\n");
-            builder.append(cur.value.toString());
-            cur = cur.next;
+        String cmd = prompt("Command? ");
+        while (!cmd.equals("quit")) {
+            command(cmd);
+            System.out.println(blkChain.toString());
+            cmd = prompt("Command? ");
         }
-        return builder.toString();
     }
 }
