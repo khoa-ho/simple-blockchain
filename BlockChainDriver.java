@@ -4,7 +4,8 @@ import java.util.Scanner;
 public class BlockChainDriver {
     public static BlockChain blkChain;
 
-    public static String prompt() {
+    private static String prompt(String text) {
+        System.out.print(text);
         @SuppressWarnings("resource")
         Scanner sc = new Scanner(System.in);
         return sc.nextLine();
@@ -21,15 +22,12 @@ public class BlockChainDriver {
             System.out.println("\thelp: prints this list of commands");
             System.out.println("\tquit: quits the program");
         } else if (cmd.equals("mine")) {
-            System.out.print("Amount transferred? ");
-            String am = prompt();
-            Block blck = blkChain.mine(Integer.parseInt(am));
-            System.out.println("amount = " + am + ", nounce = " + blck.getNonce());
+            String am = prompt("Amount transferred? ");
+            Block blk = blkChain.mine(Integer.parseInt(am));
+            System.out.println("amount = " + am + ", nounce = " + blk.getNonce());
         } else if (cmd.equals("append")) {
-            System.out.print("Amount transferred? ");
-            int am = Integer.parseInt(prompt());
-            System.out.print("Nonce? ");
-            long non = Long.parseLong(prompt());
+            int am = Integer.parseInt(prompt("Amount transferred? "));
+            long non = Long.parseLong(prompt("Nonce? "));
             Block n = new Block(blkChain.getSize(), am, blkChain.getHash(), non);
             blkChain.append(n);
         } else if (cmd.equals("remove")) {
@@ -42,19 +40,19 @@ public class BlockChainDriver {
             }
         } else if (cmd.equals("report")) {
             blkChain.printBalance();
+        } else {
+            System.out.println("Command not found! Type help for the command list.");
         }
     }
 
     public static void main(String[] args) throws NoSuchAlgorithmException {
         blkChain = new BlockChain(Integer.parseInt(args[0]));
 
-        System.out.print("Command? ");
-        String cmd = prompt();
+        String cmd = prompt("Command? ");
         while (!cmd.equals("quit")) {
             command(cmd);
             System.out.println(blkChain.toString());
-            System.out.print("Command? ");
-            cmd = prompt();
+            cmd = prompt("Command? ");
         }
     }
 }
